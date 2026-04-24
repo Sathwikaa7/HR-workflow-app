@@ -43,11 +43,58 @@ const defaultLabel: Record<WorkflowNodeType, string> = {
   end: 'End',
 };
 
+// ─── Pre-loaded demo: Employee Onboarding Workflow ───────────────────────────
+
 const initialNodes: Node[] = [
-  { id: '1', position: { x: 220, y: 220 }, data: { label: 'Start Workflow' }, type: 'start' },
+  {
+    id: '1', type: 'start',
+    position: { x: 60, y: 200 },
+    data: { label: 'Start Onboarding', metadata: [{ key: 'trigger', value: 'new_hire' }] },
+  },
+  {
+    id: '2', type: 'task',
+    position: { x: 280, y: 120 },
+    data: { label: 'Collect Documents', assignee: 'hr.team', dueDate: '2025-05-01', description: 'Collect ID proof, address proof, and educational certificates from the new hire.' },
+  },
+  {
+    id: '3', type: 'task',
+    position: { x: 280, y: 300 },
+    data: { label: 'IT Setup Request', assignee: 'it.support', dueDate: '2025-05-02', description: 'Provision laptop, email account, and system access for the new employee.' },
+  },
+  {
+    id: '4', type: 'approval',
+    position: { x: 520, y: 200 },
+    data: { label: 'Manager Approval', approverRole: 'Manager', autoApproveThreshold: 80 },
+  },
+  {
+    id: '5', type: 'automated',
+    position: { x: 760, y: 120 },
+    data: { label: 'Send Welcome Email', actionId: 'send_email', actionParams: [{ key: 'to', value: 'new.hire@company.com' }, { key: 'subject', value: 'Welcome to the team!' }] },
+  },
+  {
+    id: '6', type: 'automated',
+    position: { x: 760, y: 300 },
+    data: { label: 'Generate Offer Letter', actionId: 'generate_doc', actionParams: [{ key: 'template', value: 'offer_letter_v2' }, { key: 'recipient', value: 'new.hire@company.com' }] },
+  },
+  {
+    id: '7', type: 'end',
+    position: { x: 1020, y: 200 },
+    data: { label: 'Onboarding Complete', endMessage: 'Employee successfully onboarded!', showSummary: true },
+  },
 ];
 
-let idCounter = 2;
+const initialEdges: Edge[] = [
+  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e1-3', source: '1', target: '3', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e2-4', source: '2', target: '4', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e4-5', source: '4', target: '5', sourceHandle: 'yes', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e4-6', source: '4', target: '6', sourceHandle: 'yes', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e5-7', source: '5', target: '7', animated: true, style: { stroke: '#4ade8066' } },
+  { id: 'e6-7', source: '6', target: '7', animated: true, style: { stroke: '#4ade8066' } },
+];
+
+let idCounter = 8;
 const nextId = () => String(idCounter++);
 
 // ─── Undo/Redo history ────────────────────────────────────────────────────────
@@ -65,17 +112,17 @@ export default function App() {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [simResult, setSimResult] = useState<SimulationResult | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const [workflowName, setWorkflowName] = useState('Onboarding Workflow');
+  const [workflowName, setWorkflowName] = useState('Employee Onboarding Workflow');
   const [editingName, setEditingName] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   // ─── Undo/Redo ──────────────────────────────────────────────────────────────
-  const history = useRef<HistoryEntry[]>([{ nodes: initialNodes, edges: [] }]);
+  const history = useRef<HistoryEntry[]>([{ nodes: initialNodes, edges: initialEdges }]);
   const historyIndex = useRef(0);
 
   const pushHistory = useCallback((n: Node[], e: Edge[]) => {
