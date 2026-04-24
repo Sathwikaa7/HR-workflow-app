@@ -15,6 +15,8 @@ npm run dev
 
 Open: http://localhost:5173
 
+> A pre-loaded **Employee Onboarding Workflow** is ready on the canvas — hit **Run Workflow** immediately to see the simulation in action.
+
 ---
 
 ## Features
