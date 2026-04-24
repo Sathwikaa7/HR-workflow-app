@@ -1,33 +1,35 @@
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
-import type { TaskNodeData } from '../../types/workflow';
+import type { AutomatedStepNodeData } from '../../types/workflow';
+import { MOCK_AUTOMATIONS } from '../../api/workflowApi';
 
-export default function TaskNode({ data, selected }: NodeProps<TaskNodeData>) {
+export default function AutomatedStepNode({ data, selected }: NodeProps<AutomatedStepNodeData>) {
+  const action = MOCK_AUTOMATIONS.find((a) => a.id === data.actionId);
   return (
     <div style={{
       padding: '10px 16px',
       borderRadius: 10,
       background: selected
-        ? 'linear-gradient(135deg, #1565c0, #1976d2)'
-        : 'linear-gradient(135deg, #2196F3, #42a5f5)',
+        ? 'linear-gradient(135deg, #6a1b9a, #7b1fa2)'
+        : 'linear-gradient(135deg, #9c27b0, #ce93d8)',
       color: 'white',
       minWidth: 160,
       boxShadow: data.hasError
         ? '0 0 0 2px #f87171, 0 0 12px #f8717144'
         : selected
-        ? '0 0 0 2px #fff, 0 0 0 4px #2196F3'
+        ? '0 0 0 2px #fff, 0 0 0 4px #9c27b0'
         : '0 4px 12px rgba(0,0,0,0.2)',
       fontFamily: 'monospace',
       transition: 'box-shadow 0.15s',
       position: 'relative',
     }}>
-      <div style={{ fontSize: 10, opacity: 0.75, marginBottom: 2, letterSpacing: 1 }}>TASK</div>
+      <div style={{ fontSize: 10, opacity: 0.75, marginBottom: 2, letterSpacing: 1 }}>⚙ AUTOMATED</div>
       <div style={{ fontWeight: 700, fontSize: 13 }}>{data.label}</div>
-      {data.assignee && (
-        <div style={{ fontSize: 11, marginTop: 4, opacity: 0.9 }}>👤 {data.assignee}</div>
+      {action && (
+        <div style={{ fontSize: 11, marginTop: 4, opacity: 0.9 }}>🤖 {action.label}</div>
       )}
-      {data.dueDate && (
-        <div style={{ fontSize: 11, opacity: 0.8 }}>📅 {data.dueDate}</div>
+      {!data.actionId && (
+        <div style={{ fontSize: 10, marginTop: 4, color: '#fde68a' }}>⚠ No action set</div>
       )}
       {data.hasError && (
         <div style={{
